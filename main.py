@@ -21,40 +21,46 @@ num_filters = 8
 filter_size = 3
 pool_size = 2
 
-# Build the model.
-model = Sequential([
-  Conv2D(num_filters, filter_size, input_shape=(28, 28, 1)),
-  MaxPooling2D(pool_size=pool_size),
-  Flatten(),
-  Dense(10, activation='softmax'),
-])
+accuracy = {}
+# Tests for accuracy
+for i in range(1, 16):
+    print("Testing with epochs: " + str(i))
+    # Build the model.
+    model = Sequential([
+        Conv2D(num_filters, filter_size, input_shape=(28, 28, 1)),
+        MaxPooling2D(pool_size=pool_size),
+        Flatten(),
+        Dense(10, activation='softmax'),
+    ])
+    # Compile the model.
+    model.compile(
+        'adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy'],
+    )
 
-# Compile the model.
-model.compile(
-  'adam',
-  loss='categorical_crossentropy',
-  metrics=['accuracy'],
-)
+    # Train the model.
+    history = model.fit(
+        train_images,
+        to_categorical(train_labels),
+        epochs=i,
+        validation_data=(test_images, to_categorical(test_labels)),
+    )
 
-# Train the model.
-model.fit(
-  train_images,
-  to_categorical(train_labels),
-  epochs=3,
-  validation_data=(test_images, to_categorical(test_labels)),
-)
+    # Save the model to disk.
+    model.save_weights('mnist_cnn.h5')
 
-# Save the model to disk.
-model.save_weights('cnn.h5')
+    # Load the model from disk later using:
+    # model.load_weights('mnist_cnn.h5')
 
-# Load the model from disk later using:
-# model.load_weights('cnn.h5')
+    # Predictions initialization
+    predictions = model.predict(test_images[:30])
 
-# Predict on the first 5 test images.
-predictions = model.predict(test_images[:5])
+    # Print our model's predictions.
+    print(np.argmax(predictions, axis=1))
 
-# Print our model's predictions.
-print(np.argmax(predictions, axis=1)) # [7, 2, 1, 0, 4]
+    # Check our predictions against the ground truths.
+    print(test_labels[:30])
+    accuracy[i] = history.history['accuracy']
 
-# Check our predictions against the ground truths.
-print(test_labels[:5]) # [7, 2, 1, 0, 4]
+print(accuracy)
