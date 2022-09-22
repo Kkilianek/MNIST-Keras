@@ -23,7 +23,7 @@ pool_size = 2
 
 accuracy = {}
 # Tests for accuracy
-for i in range(1, 16):
+for i in range(1, 8):
     print("Testing with epochs: " + str(i))
     # Build the model.
     model = Sequential([
@@ -61,6 +61,6 @@ for i in range(1, 16):
 
     # Check our predictions against the ground truths.
     print(test_labels[:30])
-    accuracy[i] = history.history['accuracy']
+    accuracy[i] = history.history['accuracy'][-1]
 
 print(accuracy)
